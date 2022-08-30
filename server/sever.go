@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -29,13 +31,13 @@ func (b *Broker) Config() *Config {
 
 func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 	if config.Port == "" {
-		return nil, errors.New("El Puerto es Requerido")
+		return nil, errors.New("el puerto es requerido")
 	}
 	if config.JWTSecret == "" {
-		return nil, errors.New("El Secret es Requerido")
+		return nil, errors.New("secret es requerido")
 	}
 	if config.DatabaseUrl == "" {
-		return nil, errors.New("La base de datos es Requerida")
+		return nil, errors.New("la base de datos es requerida")
 	}
 
 	broker := &Broker{
@@ -44,4 +46,13 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 	}
 
 	return broker, nil
+}
+
+func (b *Broker) Start (binder func(s Server, r *mux.Router)) {
+	b.router = mux.NewRouter()
+	binder(b, b.router)
+	log.Println("Inicializando servidor en Puerto", b.Config().Port)
+	if err := http.ListenAndServe(b.config.Port, b.router); err != nil {
+		log.Fatal("ListenAndServer: ", err)
+	}
 }
