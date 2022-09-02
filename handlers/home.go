@@ -8,8 +8,8 @@ import (
 )
 
 type homeResponse struct {
-	Message string `json:"message"`
-	Status bool `json:"status"`
+	Message   string `json:"message"`
+	Status    bool   `json:"status"`
 }
 
 func HomeHandler(s server.Server) http.HandlerFunc {
