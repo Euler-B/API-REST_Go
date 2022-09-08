@@ -13,7 +13,7 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
-func NewPostgreREpository(ulr string) (*PostgresRepository, error) {
+func NewPostgreRepository(ulr string) (*PostgresRepository, error) {
 	db, err := sql.Open("postgres", ulr)
 	if err != nil {
 		return nil, err
@@ -23,8 +23,8 @@ func NewPostgreREpository(ulr string) (*PostgresRepository, error) {
 } 
 
 func (repo *PostgresRepository) InsertUser (ctx context.Context, user *models.User) error {
-	_, err := repo.db.ExecContext(ctx, "INSERT INTO users (email, password) VALUES ($1, $2)",
-	user.Email, user.Password) 
+	_, err := repo.db.ExecContext(ctx, "INSERT INTO users (id, email, password) VALUES ($1, $2, $3)",
+	user.Id, user.Email, user.Password) 
 	return err
 }
 

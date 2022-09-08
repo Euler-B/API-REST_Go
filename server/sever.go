@@ -7,6 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"github.com/Euler-B/API-REST_Go/repository"
+	"github.com/Euler-B/API-REST_Go/database"
+
 )
 
 type Config struct {
@@ -51,6 +55,13 @@ func NewServer(ctx context.Context, config *Config) (*Broker, error) {
 func (b *Broker) Start (binder func(s Server, r *mux.Router)) {
 	b.router = mux.NewRouter()
 	binder(b, b.router)
+	
+	repo, err := database.NewPostgreRepository(b.config.DatabaseUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	repository.SetRepository(repo)
+
 	log.Println("Inicializando servidor en el Puerto", b.Config().Port)
 	if err := http.ListenAndServe(b.config.Port, b.router); err != nil {
 		log.Fatal("ListenAndServer: ", err)
