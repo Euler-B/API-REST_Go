@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
-
+	
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +18,7 @@ const(
 	HASH_COST = 8
 )
 type SignUpLoginRequest struct {
-	Email      string `json:"Email"`
+	Email      string `json:"email"`
 	Password   string `json:"password"`
 }
 
@@ -28,7 +28,7 @@ type SignUpResponse struct {
 }
 
 type LoginResponse struct {
-	Token    string `json:"string"`
+	Token    string `json:"token"`
 }
 
 func SignUpHandler(s server.Server) http.HandlerFunc {
