@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -19,25 +18,26 @@ type InsertPostRequest struct {
 }
 
 type PostResponse struct {
-	Id string `json:"id"`
+	Id          string `json:"id"`
 	PostContent string `json:"post_content"`
 }
 
 func InsertPostHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := strings.TrimSpace(r.Header.Get("Autorization"))
+		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
 		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, 
 			func(token *jwt.Token) (interface{}, error) {
 				return []byte(s.Config().JWTSecret), nil
 			})
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 			if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
 				var postRequest = InsertPostRequest{}
-				if err := json.NewDecoder(r.Body).Decode(&postRequest); err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
+				err := json.NewDecoder(r.Body).Decode(&postRequest); 
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
 				id, err := ksuid.NewRandom()
