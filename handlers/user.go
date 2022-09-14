@@ -114,8 +114,8 @@ func LoginHandler(s server.Server) http.HandlerFunc{
 
 func MeHandler(s server.Server) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		tokenString := strings.TrimSpace(r.Header.Get("Autorization"))
-		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, 
+		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+		token, err  := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, 
 			func(token *jwt.Token) (interface{}, error) {
 				return []byte(s.Config().JWTSecret), nil
 			})
