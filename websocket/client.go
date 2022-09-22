@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"github.com/gorilla/websocket"
-	"golang.org/x/text/message"
 )
 
 type Client struct {
@@ -23,7 +22,7 @@ func NewClient (hub *Hub, socket *websocket.Conn) *Client {
 func (c *Client) Write() {
 	for {
 		select {
-		case message, ok: <- c.outbound:
+		case message, ok := <- c.outbound:
 			if !ok {
 				c.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
