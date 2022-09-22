@@ -5,7 +5,7 @@
 
 
 # Configuration for go packages 
-version: 1
+version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/" # Location of package manifests
@@ -13,8 +13,6 @@ updates:
       interval: "weekly"   
       
 # Configuration for docker's container      
-version: 2
-updates:
   - package-ecosystem: "docker" # See documentation for possible values
     directory: "/database/" # Location of package manifests
     schedule:
