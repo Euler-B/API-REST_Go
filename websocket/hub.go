@@ -1,9 +1,9 @@
 package websocket
 
 import (
-	"http"
-	"log"
+	"encoding/json"
 	"net/http"
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -28,18 +28,6 @@ func NewHub() *Hub {
 	}
 }
 
-func (hub *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	socket, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
-	}
-	client := NewClient(hub, socket)
-	hub.register <- client
-
-	go client.Write()
-}
-
 func (hub *Hub) Run() {
 	for {
 		select {
@@ -62,6 +50,7 @@ func (hub *Hub) onConnect(client *Client) {
 
 func (hub *Hub) onDisconnect(client *Client) {
 	log.Println("Client Disconnected", client.socket.RemoteAddr())
+
 	client.socket.Close()
 	hub.mutex.Lock()
 	defer hub.mutex.Unlock()
@@ -75,4 +64,25 @@ func (hub *Hub) onDisconnect(client *Client) {
 	copy(hub.clients[i:], hub.clients[i+1:])
 	hub.clients[len(hub.clients) - 1] = nil 
 	hub.clients = hub.clients[:len(hub.clients) - 1]
+}
+
+func (hub *Hub) Broadcast(message interface{}, ignore *Client) {
+	data, _ := json.Marshal(message)
+	for _, client := range hub.clients {
+		if client != ignore {
+			client.outbound <-data 
+		}
+	} 
+}
+
+func (hub *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	socket, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
+	}
+	client := NewClient(hub, socket)
+	hub.register <- client
+
+	go client.Write()
 }
