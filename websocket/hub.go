@@ -1,9 +1,9 @@
 package websocket
 
 import (
-	"http"
-	"log"
+	"encoding/json"
 	"net/http"
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -26,6 +26,53 @@ func NewHub() *Hub {
 		register: make(chan *Client),
 		mutex: &sync.Mutex{},
 	}
+}
+
+func (hub *Hub) Run() {
+	for {
+		select {
+		case client := <- hub.register:
+			hub.onConnect(client)
+		case client := <- hub.unregister:
+			hub.onDisconnect(client) 
+		}
+	}
+}
+
+func (hub *Hub) onConnect(client *Client) {
+	log.Println("Client Connected", client.socket.RemoteAddr())
+
+	hub.mutex.Lock()
+	defer hub.mutex.Unlock()
+	client.id = client.socket.RemoteAddr().String()
+	hub.clients = append(hub.clients, client)
+}
+
+func (hub *Hub) onDisconnect(client *Client) {
+	log.Println("Client Disconnected", client.socket.RemoteAddr())
+
+	client.socket.Close()
+	hub.mutex.Lock()
+	defer hub.mutex.Unlock()
+
+	i := -1
+	for j, c := range hub.clients {
+		if c.id == client.id {
+			i = j
+		}
+	}
+	copy(hub.clients[i:], hub.clients[i+1:])
+	hub.clients[len(hub.clients) - 1] = nil 
+	hub.clients = hub.clients[:len(hub.clients) - 1]
+}
+
+func (hub *Hub) Broadcast(message interface{}, ignore *Client) {
+	data, _ := json.Marshal(message)
+	for _, client := range hub.clients {
+		if client != ignore {
+			client.outbound <-data 
+		}
+	} 
 }
 
 func (hub *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {

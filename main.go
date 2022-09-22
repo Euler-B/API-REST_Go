@@ -9,7 +9,6 @@ import (
 	"github.com/Euler-B/API-REST_Go/handlers"
 	"github.com/Euler-B/API-REST_Go/middleware"
 	"github.com/Euler-B/API-REST_Go/server"
-	"github.com/Euler-B/API-REST_Go/websocket"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -39,8 +38,7 @@ func main() {
 }
 
 func BindRoutes(s server.Server, r *mux.Router) {
-	hub := websocket.NewHub()
-
+	
 	r.Use(middleware.CheckAuthMiddleware(s))
 
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods(http.MethodGet)
@@ -55,5 +53,5 @@ func BindRoutes(s server.Server, r *mux.Router) {
 	r.HandleFunc("/posts/{id}", handlers.DeletePostHandler(s)).Methods(http.MethodDelete)
 	r.HandleFunc("/posts", handlers.ListPostHandler(s)).Methods(http.MethodGet)
 
-	r.HandleFunc("/ws", hub.HandleWebSocket(s)) 
+	r.HandleFunc("/ws", s.Hub().HandleWebSocket) 
 }
