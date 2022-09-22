@@ -12,10 +12,10 @@ updates:
     schedule:
       interval: "weekly"   
       
-# Configuration for dockers       
+# Configuration for docker's container      
 version: 2
 updates:
   - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directory: "/database/" # Location of package manifests
     schedule:
       interval: "weekly"
