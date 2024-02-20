@@ -26,3 +26,27 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+  build-image:
+    name: Build Image for Deployment
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE_NAME: ghcr.io/euler-b/api-rest_go
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: "Login into Github Container Registry (a.k.a. ghcr.io)"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Build and push Docker image to Github Container Registry ('latest')"
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          docker build --tag $DOCKER_IMAGE:latest . 
+          docker push $DOCKER_IMAGE_NAME:latest
+
+     
