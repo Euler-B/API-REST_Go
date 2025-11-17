@@ -1,4 +1,4 @@
-FROM postgres:18.0
+FROM postgres:18.1
 
 COPY up.sql /docker-entrypoint-initdb.d/up.sql
 
