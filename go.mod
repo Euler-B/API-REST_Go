@@ -1,6 +1,6 @@
 module github.com/Euler-B/API-REST_Go
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
@@ -9,5 +9,5 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.12.3
 	github.com/segmentio/ksuid v1.0.4
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 )
